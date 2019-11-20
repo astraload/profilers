@@ -1,13 +1,24 @@
-const EventEmitter = require('events');
 const heapdump = require('heapdump');
 const { insertTask } = require('./collection');
 const { TaskType } = require('./constants');
+const { logInColor } = require('./helpers');
 
 
-class HeapProfiler extends EventEmitter {
+class HeapProfiler {
   constructor() {
-    super();
+    this.dumping = false;
   }
+
+
+  isDumping() {
+    return this.dumping;
+  }
+
+
+  setDumping(value) {
+    this.dumping = Boolean(value);
+  }
+
 
   scheduleTask(instanceName) {
     insertTask({
@@ -16,23 +27,32 @@ class HeapProfiler extends EventEmitter {
     });
   }
 
+
   snapshot() {
     const id = new Mongo.ObjectID().valueOf();
     const fileName = this.getFileNameById(id);
     const filePath = this.getFilePathByName(fileName);
     const writeSnapshotFiber = Meteor.wrapAsync(heapdump.writeSnapshot, heapdump);
-    console.log(`Writing of heap snapshot (${id}) started`);
+    this.logOperation(id, 'started');
     writeSnapshotFiber(filePath);
-    console.log(`Writing of heap snapshot (${id}) finished`);
+    this.logOperation(id, 'finished');
     return { fileName, filePath };
   }
+
 
   getFileNameById(id) {
     return `${id}.heapsnapshot`;
   }
 
+
   getFilePathByName(fileName) {
     return `/tmp/${fileName}`;
+  }
+
+
+  logOperation(id, operation) {
+    const message = `Writing of heap snapshot (${id}) ${operation}`;
+    logInColor(message);
   }
 }
 
