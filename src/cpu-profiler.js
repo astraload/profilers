@@ -1,15 +1,25 @@
-const EventEmitter = require('events');
 const fs = require('fs');
 const v8Profiler = require('v8-profiler-node8');
 const { insertTask } = require('./collection');
 const { TaskType } = require('./constants');
+const { logInColor } = require('./helpers');
 
 const DefaultDuration = 60 * 1000;
 
 
-class CpuProfiler extends EventEmitter {
+class CpuProfiler {
   constructor() {
-    super();
+    this.profiling = false;
+  }
+
+
+  isProfiling() {
+    return this.profiling;
+  }
+
+
+  setProfiling(value) {
+    this.profiling = Boolean(value);
   }
 
 
@@ -31,12 +41,12 @@ class CpuProfiler extends EventEmitter {
 
       const id = new Mongo.ObjectID().valueOf();
       v8Profiler.startProfiling(id);
-      console.log(`Profiling CPU (${id}) started`);
+      this.logOperation(id, 'started');
       const delay = duration || DefaultDuration;
 
       Meteor.setTimeout(() => {
         const profile = v8Profiler.stopProfiling(id);
-        console.log(`Profiling CPU (${id}) finished`);
+        this.logOperation(id, 'finished');
         const { fileName, filePath } = this.saveProfile(profile, id);
         profile.delete();
         resolve({ fileName, filePath });
@@ -67,6 +77,12 @@ class CpuProfiler extends EventEmitter {
 
   getFilePathByName(fileName) {
     return `/tmp/${fileName}`;
+  }
+
+
+  logOperation(id, operation) {
+    const message = `Profiling of CPU (${id}) ${operation}`;
+    logInColor(message);
   }
 }
 
