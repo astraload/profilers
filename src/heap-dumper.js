@@ -4,7 +4,7 @@ const { TaskType, HeapSnapshotFileExt } = require('./constants');
 const { logInColor, generateId } = require('./helpers');
 
 
-class HeapProfiler {
+class HeapDumper {
   constructor() {
     this.dumping = false;
   }
@@ -57,4 +57,4 @@ class HeapProfiler {
 }
 
 
-module.exports = { HeapProfiler };
+module.exports = { HeapDumper };

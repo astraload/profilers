@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const { CpuProfiler } = require('./cpu-profiler');
-const { HeapProfiler } = require('./heap-dumper');
+const { HeapDumper } = require('./heap-dumper');
 const { getCollection, removeTask } = require('./collection');
 const { TaskType, TaskEvent } = require('./constants');
 const { logInColor } = require('./helpers');
@@ -14,7 +14,7 @@ class Profilers extends EventEmitter {
     super();
     if (profilersInstance) return profilersInstance;
     this.cpu = new CpuProfiler();
-    this.heap = new HeapProfiler();
+    this.heap = new HeapDumper();
     this.observerHandle = null;
     this.handleTaskAdded = this.handleTaskAdded.bind(this);
     this.removeTask = Meteor.bindEnvironment(removeTask);
