@@ -1,8 +1,8 @@
 const fs = require('fs');
 const v8Profiler = require('v8-profiler-node8');
 const { insertTask } = require('./collection');
-const { TaskType } = require('./constants');
-const { logInColor } = require('./helpers');
+const { TaskType, CpuProfileFileExt } = require('./constants');
+const { logInColor, generateId } = require('./helpers');
 
 const DefaultDuration = 60 * 1000;
 
@@ -39,7 +39,7 @@ class CpuProfiler {
         v8Profiler.setSamplingInterval(samplingInterval);
       }
 
-      const id = new Mongo.ObjectID().valueOf();
+      const id = generateId();
       v8Profiler.startProfiling(id);
       this.logOperation(id, 'started');
       const delay = duration || DefaultDuration;
@@ -71,7 +71,7 @@ class CpuProfiler {
 
 
   getFileNameById(id) {
-    return `${id}.cpuprofile`;
+    return `${id}.${CpuProfileFileExt}`;
   }
 
 

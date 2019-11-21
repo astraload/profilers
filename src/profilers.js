@@ -1,8 +1,9 @@
 const EventEmitter = require('events');
 const { CpuProfiler } = require('./cpu-profiler');
-const { HeapProfiler } = require('./heap-profiler');
+const { HeapDumper } = require('./heap-dumper');
 const { getCollection, removeTask } = require('./collection');
 const { TaskType, TaskEvent } = require('./constants');
+const { logInColor } = require('./helpers');
 
 
 let profilersInstance = null;
@@ -13,7 +14,7 @@ class Profilers extends EventEmitter {
     super();
     if (profilersInstance) return profilersInstance;
     this.cpu = new CpuProfiler();
-    this.heap = new HeapProfiler();
+    this.heap = new HeapDumper();
     this.observerHandle = null;
     this.handleTaskAdded = this.handleTaskAdded.bind(this);
     this.removeTask = Meteor.bindEnvironment(removeTask);
@@ -58,7 +59,10 @@ class Profilers extends EventEmitter {
 
 
   async handleCpuProfileTask(instanceName, duration, samplingInterval) {
-    if (this.cpu.isProfiling()) return;
+    if (this.cpu.isProfiling()) {
+      logInColor('Skipping a task (CPU profiling is already in progress)');
+      return;
+    }
     this.cpu.setProfiling(true);
     try {
       const { fileName, filePath } = await this.cpu.profile(duration, samplingInterval);
@@ -71,7 +75,10 @@ class Profilers extends EventEmitter {
 
 
   handleHeapSnapshotTask(instanceName) {
-    if (this.heap.isDumping()) return;
+    if (this.heap.isDumping()) {
+      logInColor('Skipping a task (Writing of heap snapshot is already in progress)');
+      return;
+    }
     this.heap.setDumping(true);
     try {
       const { fileName, filePath } = this.heap.snapshot();
