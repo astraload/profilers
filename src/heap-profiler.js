@@ -1,7 +1,7 @@
 const heapdump = require('heapdump');
 const { insertTask } = require('./collection');
-const { TaskType } = require('./constants');
-const { logInColor } = require('./helpers');
+const { TaskType, HeapSnapshotFileExt } = require('./constants');
+const { logInColor, generateId } = require('./helpers');
 
 
 class HeapProfiler {
@@ -29,7 +29,7 @@ class HeapProfiler {
 
 
   snapshot() {
-    const id = new Mongo.ObjectID().valueOf();
+    const id = generateId();
     const fileName = this.getFileNameById(id);
     const filePath = this.getFilePathByName(fileName);
     const writeSnapshotFiber = Meteor.wrapAsync(heapdump.writeSnapshot, heapdump);
@@ -41,7 +41,7 @@ class HeapProfiler {
 
 
   getFileNameById(id) {
-    return `${id}.heapsnapshot`;
+    return `${id}.${HeapSnapshotFileExt}`;
   }
 
 
