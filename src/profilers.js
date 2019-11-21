@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const { CpuProfiler } = require('./cpu-profiler');
-const { HeapProfiler } = require('./heap-profiler');
+const { HeapProfiler } = require('./heap-dumper');
 const { getCollection, removeTask } = require('./collection');
 const { TaskType, TaskEvent } = require('./constants');
 const { logInColor } = require('./helpers');
