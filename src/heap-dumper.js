@@ -1,4 +1,5 @@
-const heapdump = require('heapdump');
+const fs = require('fs');
+const v8Profiler = require('v8-profiler-node8');
 const { insertTask } = require('./collection');
 const { TaskType, HeapSnapshotFileExt } = require('./constants');
 const { logInColor, generateId } = require('./helpers');
@@ -30,13 +31,27 @@ class HeapDumper {
 
   snapshot() {
     const id = generateId();
-    const fileName = this.getFileNameById(id);
-    const filePath = this.getFilePathByName(fileName);
-    const writeSnapshotFiber = Meteor.wrapAsync(heapdump.writeSnapshot, heapdump);
     this.logOperation(id, 'started');
-    writeSnapshotFiber(filePath);
+    const snapshot = v8Profiler.takeSnapshot();
     this.logOperation(id, 'finished');
+    const { fileName, filePath } = this.saveSnapshot(snapshot, id);
+    snapshot.delete();
     return { fileName, filePath };
+  }
+
+
+  saveSnapshot(snapshot, id) {
+    try {
+      const snapshotExportFiber = Meteor.wrapAsync(snapshot.export, snapshot);
+      const result = snapshotExportFiber();
+      const fileName = this.getFileNameById(id);
+      const filePath = this.getFilePathByName(fileName);
+      fs.writeFileSync(filePath, result);
+      return { fileName, filePath };
+    } catch (error) {
+      console.error(`Failed to save heap snapshot (${id})`, error);
+      return {};
+    }
   }
 
 
