@@ -61,7 +61,8 @@ class CpuProfiler {
       const result = profileExportFiber();
       const fileName = this.getFileNameById(id);
       const filePath = this.getFilePathByName(fileName);
-      fs.writeFileSync(filePath, result);
+      const writeFileFiber = Meteor.wrapAsync(fs.writeFile, fs);
+      writeFileFiber(filePath, result);
       return { fileName, filePath };
     } catch (error) {
       console.error(`Failed to save CPU profile (${id})`, error);
