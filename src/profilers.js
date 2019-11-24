@@ -11,13 +11,12 @@ let profilersInstance = null;
 
 class Profilers extends EventEmitter {
   constructor() {
-    super();
     if (profilersInstance) return profilersInstance;
+    super();
     this.cpu = new CpuProfiler();
     this.heap = new HeapDumper();
     this.observerHandle = null;
     this.handleTaskAdded = this.handleTaskAdded.bind(this);
-    this.removeTask = Meteor.bindEnvironment(removeTask);
     profilersInstance = this;
   }
 
@@ -36,24 +35,23 @@ class Profilers extends EventEmitter {
   }
 
 
-  async handleTaskAdded(id, task) {
-    try {
-      const { instanceName, taskType, duration, samplingInterval } = task || {};
-      this.removeTask(id);
-      switch (taskType) {
-        case TaskType.CpuProfile: {
-          await this.handleCpuProfileTask(instanceName, duration, samplingInterval);
-          break;
-        }
-        case TaskType.HeapSnapshot: {
-          this.handleHeapSnapshotTask(instanceName);
-          break;
-        }
-        default:
-          console.error('Profilers.UnknownTaskType', taskType);
+  handleTaskAdded(id, task) {
+    const { instanceName, taskType, duration, samplingInterval } = task || {};
+    removeTask(id);
+    switch (taskType) {
+      case TaskType.CpuProfile: {
+        this.handleCpuProfileTask(instanceName, duration, samplingInterval)
+          .catch((error) => {
+            console.error('Profilers.handleCpuProfileTask.failed', error);
+          });
+        break;
       }
-    } catch (error) {
-      console.error('Profilers.handleTaskAdded.failed', error);
+      case TaskType.HeapSnapshot: {
+        this.handleHeapSnapshotTask(instanceName);
+        break;
+      }
+      default:
+        console.error('Profilers.UnknownTaskType', taskType);
     }
   }
 
@@ -81,10 +79,10 @@ class Profilers extends EventEmitter {
     }
     this.heap.setDumping(true);
     try {
-      const { fileName, filePath } = this.heap.snapshot();
+      const { fileName, filePath } = this.heap.takeSnapshot();
       this.emit(TaskEvent.HeapSnapshotCreated, { instanceName, fileName, filePath });
     } catch (error) {
-      console.error('Profilers.heap.snapshot.failed', error);
+      console.error('Profilers.heap.takeSnapshot.failed', error);
     }
     this.heap.setDumping(false);
   }
