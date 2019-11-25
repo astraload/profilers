@@ -29,14 +29,20 @@ class HeapDumper {
   }
 
 
-  snapshot() {
+  takeSnapshot() {
     const id = generateId();
-    this.logOperation(id, 'started');
-    const snapshot = v8Profiler.takeSnapshot();
-    this.logOperation(id, 'finished');
-    const { fileName, filePath } = this.saveSnapshot(snapshot, id);
-    snapshot.delete();
-    return { fileName, filePath };
+    let snapshot;
+    try {
+      this.logOperation(id, 'started');
+      snapshot = v8Profiler.takeSnapshot();
+      this.logOperation(id, 'finished');
+      return this.saveSnapshot(snapshot, id);
+    } catch (error) {
+      console.error(`Failed to take heap snapshot (${id})`, error);
+      return {};
+    } finally {
+      if (snapshot) snapshot.delete();
+    }
   }
 
 
@@ -46,7 +52,8 @@ class HeapDumper {
       const result = snapshotExportFiber();
       const fileName = this.getFileNameById(id);
       const filePath = this.getFilePathByName(fileName);
-      fs.writeFileSync(filePath, result);
+      const writeFileFiber = Meteor.wrapAsync(fs.writeFile, fs);
+      writeFileFiber(filePath, result);
       return { fileName, filePath };
     } catch (error) {
       console.error(`Failed to save heap snapshot (${id})`, error);
