@@ -1,12 +1,14 @@
 {
   "name": "@astraload/profilers",
-  "version": "1.0.4",
-  "description": "CPU profiler and heap dumper for multi-instance Meteor applications",
+  "version": "1.0.5",
+  "description": "CPU profiler and heap dumper for multi-instance Meteor web apps",
   "main": "index.js",
   "scripts": {},
   "keywords": [
     "CPU",
     "profile",
+    "heap",
+    "snapshot",
     "heapdump",
     "Meteor",
     "multiple",
