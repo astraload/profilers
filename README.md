@@ -93,7 +93,7 @@ The package exports the following entities:
 
 ***
 
-#### Profilers class
+### Profilers class
 `Profilers` class has the following public members:
 
 **`cpu`** - an instance of the `CpuProfiler` class.
@@ -106,7 +106,7 @@ The package exports the following entities:
 
 ***
 
-#### CpuProfiler class
+### CpuProfiler class
 
 The `CpuProfile` class has the following public methods:
 
@@ -124,7 +124,7 @@ In both the **`profile`** and the **`scheduleTask`** methods, `duration` and `sa
 
 ***
 
-#### HeapDumper class
+### HeapDumper class
 
 The `HeapDumper` class has the following public methods:
 
