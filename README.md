@@ -34,7 +34,7 @@ The resulting file is located in `/tmp` folder and its name consists of 12 rando
 
 ## Advanced usage
 
-This package allows creating CPU profiles and heap snapshots in a multi-instance Meteor web apps setup. To do so, the package utilizes an auxiliary MongoDB collection `instanceTasks`. Each Meteor web app instance needs to call `profilers.startObserving(instanceName)` in its startup hook to start an observer of the `instanceTasks` collection. When a new task is added to that collection, it will trigger the corresponding creation of a CPU profile or a heap snapshot:
+This package allows creating CPU profiles and heap snapshots in a multi-instance Meteor web apps setup. To do so, the package utilizes an auxiliary MongoDB collection `instanceTasks`. Each Meteor web app instance needs to call `profilers.startObserving(instanceName)` method in its startup hook to start an observer of the `instanceTasks` collection. When a new task is added to that collection, it will trigger the corresponding creation of a CPU profile or a heap snapshot:
 
 ```js
 import { Meteor } from 'meteor/meteor';
@@ -49,7 +49,7 @@ Meteor.startup(() => {
 });
 
 function handleFileCreated({ instanceName, fileName, filePath }) {
-  /* Do whatever you need with created file */
+  /* Do whatever you need with the created file */
 }
 
 function getInstanceName() {
@@ -58,7 +58,7 @@ function getInstanceName() {
 ```
 Also, in the startup hook, you may want to register handlers for `TaskEvent.CpuProfileCreated` and `TaskEvent.HeapSnapshotCreated` events. In the handlers, you may want to upload the resulting files to cloud storage for later inspection or do something else.
 
-Now, as each web app instance started the observer of the `instanceTasks` collection, we can trigger the creation of a CPU profile or a heap snapshot of a particular web app instance, by calling `scheduleTask(instanceName)` method like so:
+Now, as each web app instance started the observer of the `instanceTasks` collection, we can trigger the creation of a CPU profile or a heap snapshot of a particular web app instance, by calling `scheduleTask(instanceName)` method:
 
 ```js
 function createCpuProfile(duration, samplingInterval) {
@@ -93,7 +93,7 @@ The package exports the following entities:
 
 ***
 
-#### Profilers class
+### Profilers class
 `Profilers` class has the following public members:
 
 **`cpu`** - an instance of the `CpuProfiler` class.
@@ -106,11 +106,11 @@ The package exports the following entities:
 
 ***
 
-#### CpuProfiler class
+### CpuProfiler class
 
 The `CpuProfile` class has the following public methods:
 
-**`isProfiling()`** - returns value of the `profiling` flag which indicates that CPU profiling is in progress. The `profiling` flag is automatically managed only in a scenario when the CPU profiling process is triggered by the `scheduleTask` method. To prevent the overlapping of CPU profiling triggered by the `profile` method, you need to manually set the `profiling` flag's value using the `setProfiling` method.
+**`isProfiling()`** - returns value of the `profiling` flag which indicates that CPU profiling is in progress. The `profiling` flag is automatically managed only in a scenario when the CPU profiling process is triggered by the `scheduleTask` method. To prevent the overlapping of CPU profiling triggered by the `profile` method as well, you need to manually set the `profiling` flag's value using the `setProfiling` method.
 
 **`setProfiling(value)`** - sets `profiling` flag to the provided boolean `value`.
 
@@ -124,11 +124,11 @@ In both the **`profile`** and the **`scheduleTask`** methods, `duration` and `sa
 
 ***
 
-#### HeapDumper class
+### HeapDumper class
 
 The `HeapDumper` class has the following public methods:
 
-**`isDumping()`** - returns value of the `dumping` flag which indicates that heap dumping is in progress. The `dumping` flag is automatically managed only in a scenario when the dumping process is triggered by the `scheduleTask` method. To prevent overlapping of heap dumping triggered by the `takeSnapshot` method, you need to manually set the `dumping` flag's value using the `setDumping` method.
+**`isDumping()`** - returns value of the `dumping` flag which indicates that heap dumping is in progress. The `dumping` flag is automatically managed only in a scenario when the dumping process is triggered by the `scheduleTask` method. To prevent overlapping of heap dumping triggered by the `takeSnapshot` method as well, you need to manually set the `dumping` flag's value using the `setDumping` method.
 
 **`setDumping(value)`** - sets `dumping` flag to the provided boolean `value`.
 
