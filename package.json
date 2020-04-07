@@ -16,9 +16,7 @@
   ],
   "author": "baryshok",
   "license": "ISC",
-  "dependencies": {
-    "v8-profiler-node8": "^6.1.1"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/astraload/profilers.git"
