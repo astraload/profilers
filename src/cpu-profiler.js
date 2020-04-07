@@ -1,5 +1,5 @@
 const fs = require('fs');
-const v8Profiler = require('v8-profiler-node8');
+const v8Profiler = require('v8-profiler-next');
 const { insertTask } = require('./collection');
 const { TaskType, CpuProfileFileExt } = require('./constants');
 const { logInColor, generateId } = require('./helpers');
