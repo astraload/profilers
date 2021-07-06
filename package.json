@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/astraload/profilers/issues"
   },
-  "homepage": "https://github.com/astraload/profilers#readme"
+  "homepage": "https://github.com/astraload/profilers#readme",
+  "devDependencies": {
+    "@types/node": "^12.20.15"
+  }
 }
