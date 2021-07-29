@@ -5,7 +5,7 @@ let InstanceTasks = null;
 
 function createCollection() {
   InstanceTasks = new Mongo.Collection(CollectionName);
-  InstanceTasks.rawCollection().createIndex({ instanceName: 1 });
+  InstanceTasks.rawCollection().createIndex({ instanceName: 1 }).catch(() => {});
   InstanceTasks.deny({
     insert() { return true; },
     update() { return true; },
