@@ -19,7 +19,7 @@ export class CpuProfiler {
 export class HeapDumper {
   isDumping(): boolean;
   setDumping(value: boolean): void;
-  takeSnapshot(): { fileName: string; filePath: string };
+  takeSnapshot(): Promise<{ fileName: string; filePath: string }>;
   scheduleTask(instanceName: string): Promise<void>;
 }
 

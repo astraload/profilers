@@ -40,10 +40,7 @@ class Profilers extends EventEmitter {
     await removeTask(id);
     switch (taskType) {
       case TaskType.CpuProfile: {
-        this.handleCpuProfileTask(instanceName, duration, samplingInterval)
-          .catch((error) => {
-            console.error('Profilers.handleCpuProfileTask.failed', error);
-          });
+        this.handleCpuProfileTask(instanceName, duration, samplingInterval);
         break;
       }
       case TaskType.HeapSnapshot: {
@@ -72,14 +69,14 @@ class Profilers extends EventEmitter {
   }
 
 
-  handleHeapSnapshotTask(instanceName) {
+  async handleHeapSnapshotTask(instanceName) {
     if (this.heap.isDumping()) {
       logInColor('Skipping a task (Writing of heap snapshot is already in progress)');
       return;
     }
     this.heap.setDumping(true);
     try {
-      const { fileName, filePath } = this.heap.takeSnapshot();
+      const { fileName, filePath } = await this.heap.takeSnapshot();
       this.emit(TaskEvent.HeapSnapshotCreated, { instanceName, fileName, filePath });
     } catch (error) {
       console.error('Profilers.heap.takeSnapshot.failed', error);
