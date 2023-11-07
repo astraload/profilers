@@ -21,8 +21,8 @@ class HeapDumper {
   }
 
 
-  scheduleTask(instanceName) {
-    insertTask({
+  async scheduleTask(instanceName) {
+    await insertTask({
       instanceName,
       taskType: TaskType.HeapSnapshot,
     });

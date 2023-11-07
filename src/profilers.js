@@ -35,9 +35,9 @@ class Profilers extends EventEmitter {
   }
 
 
-  handleTaskAdded(id, task) {
+  async handleTaskAdded(id, task) {
     const { instanceName, taskType, duration, samplingInterval } = task || {};
-    removeTask(id);
+    await removeTask(id);
     switch (taskType) {
       case TaskType.CpuProfile: {
         this.handleCpuProfileTask(instanceName, duration, samplingInterval)

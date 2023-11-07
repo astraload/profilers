@@ -13,14 +13,14 @@ export class CpuProfiler {
     instanceName: string,
     duration: number,
     samplingInterval: number
-  ): void;
+  ): Promise<void>;
 }
 
 export class HeapDumper {
   isDumping(): boolean;
   setDumping(value: boolean): void;
   takeSnapshot(): { fileName: string; filePath: string };
-  scheduleTask(instanceName: string): void;
+  scheduleTask(instanceName: string): Promise<void>;
 }
 
 export class Profilers extends EventEmitter {

@@ -23,8 +23,8 @@ class CpuProfiler {
   }
 
 
-  scheduleTask(instanceName, duration, samplingInterval) {
-    insertTask({
+  async scheduleTask(instanceName, duration, samplingInterval) {
+    await insertTask({
       instanceName,
       duration,
       samplingInterval,
