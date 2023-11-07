@@ -44,10 +44,10 @@ class CpuProfiler {
       this.logOperation(id, 'started');
       const delay = duration || DefaultDuration;
 
-      Meteor.setTimeout(() => {
+      setTimeout(async () => {
         const profile = v8Profiler.stopProfiling(id);
         this.logOperation(id, 'finished');
-        const { fileName, filePath } = this.saveProfile(profile, id);
+        const { fileName, filePath } = await this.saveProfile(profile, id);
         profile.delete();
         resolve({ fileName, filePath });
       }, delay);
@@ -56,18 +56,26 @@ class CpuProfiler {
 
 
   saveProfile(profile, id) {
-    try {
-      const profileExportFiber = Meteor.wrapAsync(profile.export, profile);
-      const result = profileExportFiber();
-      const fileName = this.getFileNameById(id);
-      const filePath = this.getFilePathByName(fileName);
-      const writeFileFiber = Meteor.wrapAsync(fs.writeFile, fs);
-      writeFileFiber(filePath, result);
-      return { fileName, filePath };
-    } catch (error) {
-      console.error(`Failed to save CPU profile (${id})`, error);
-      return {};
-    }
+    return new Promise((resolve) => {
+      profile.export((error, result) => {
+        if (error) {
+          console.error(`Failed to save CPU profile (${id})`, error);
+          return resolve({});
+        }
+
+        const fileName = this.getFileNameById(id);
+        const filePath = this.getFilePathByName(fileName);
+
+        fs.writeFile(filePath, result, (error) => {
+          if (error) {
+            console.error(`Failed to save CPU profile (${id})`, error);
+            return resolve({});
+          }
+
+          resolve({ fileName, filePath });
+        });
+      });
+    });
   }
 
 
