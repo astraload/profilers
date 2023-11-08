@@ -21,15 +21,15 @@ class HeapDumper {
   }
 
 
-  scheduleTask(instanceName) {
-    insertTask({
+  async scheduleTask(instanceName) {
+    await insertTask({
       instanceName,
       taskType: TaskType.HeapSnapshot,
     });
   }
 
 
-  takeSnapshot() {
+  async takeSnapshot() {
     const id = generateId();
     let snapshot;
     try {
@@ -47,18 +47,26 @@ class HeapDumper {
 
 
   saveSnapshot(snapshot, id) {
-    try {
-      const snapshotExportFiber = Meteor.wrapAsync(snapshot.export, snapshot);
-      const result = snapshotExportFiber();
-      const fileName = this.getFileNameById(id);
-      const filePath = this.getFilePathByName(fileName);
-      const writeFileFiber = Meteor.wrapAsync(fs.writeFile, fs);
-      writeFileFiber(filePath, result);
-      return { fileName, filePath };
-    } catch (error) {
-      console.error(`Failed to save heap snapshot (${id})`, error);
-      return {};
-    }
+    return new Promise((resolve) => {
+      snapshot.export((error, result) => {
+        if (error) {
+          console.error(`Failed to save heap snapshot (${id})`, error);
+          return resolve({});
+        }
+
+        const fileName = this.getFileNameById(id);
+        const filePath = this.getFilePathByName(fileName);
+
+        fs.writeFile(filePath, result, (error) => {
+          if (error) {
+            console.error(`Failed to save heap snapshot (${id})`, error);
+            return resolve({});
+          }
+
+          resolve({ fileName, filePath });
+        });
+      });
+    });
   }
 
 

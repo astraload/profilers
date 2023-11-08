@@ -4,7 +4,7 @@ let InstanceTasks = null;
 
 
 function createCollection() {
-  InstanceTasks = new Mongo.Collection(CollectionName);
+  InstanceTasks = new Mongo.Collection(CollectionName, { defineMutationMethods: false });
   InstanceTasks.rawCollection().createIndex({ instanceName: 1 }).catch(() => {});
   InstanceTasks.deny({
     insert() { return true; },
@@ -29,9 +29,9 @@ function logCollectionNotCreatedError(operation) {
 }
 
 
-function insertTask({ instanceName, taskType, duration, samplingInterval }) {
+async function insertTask({ instanceName, taskType, duration, samplingInterval }) {
   if (!InstanceTasks) return logCollectionNotCreatedError('insert');
-  InstanceTasks.insert({
+  await InstanceTasks.insertAsync({
     instanceName,
     taskType,
     duration,
@@ -40,9 +40,9 @@ function insertTask({ instanceName, taskType, duration, samplingInterval }) {
 }
 
 
-function removeTask(id) {
+async function removeTask(id) {
   if (!InstanceTasks) return logCollectionNotCreatedError('remove');
-  InstanceTasks.remove(id);
+  await InstanceTasks.removeAsync(id);
 }
 
 

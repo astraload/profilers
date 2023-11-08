@@ -23,9 +23,9 @@ async function createCpuProfile(duration, samplingInterval) {
 ```
 An example of creating a heap snapshot:
 ```js
-function takeHeapSnapshot() {
+async function takeHeapSnapshot() {
   const profilers = new Profilers();
-  const { fileName, filePath } = profilers.heap.takeSnapshot();
+  const { fileName, filePath } = await profilers.heap.takeSnapshot();
   return { fileName, filePath };
 };
 ```
