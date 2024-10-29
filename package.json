@@ -1,6 +1,6 @@
 {
   "name": "@astraload/profilers",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "CPU profiler and heap dumper for multi-instance Meteor web apps",
   "main": "index.js",
   "scripts": {},
@@ -17,7 +17,7 @@
   "author": "baryshok",
   "license": "ISC",
   "dependencies": {
-    "v8-profiler-next": "^1.9.0"
+    "v8-profiler-next": "^1.10.0"
   },
   "repository": {
     "type": "git",
