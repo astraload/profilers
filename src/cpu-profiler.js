@@ -1,13 +1,13 @@
-const fs = require('node:fs/promises');
-const { Session } = require('node:inspector/promises');
-const { insertTask } = require('./collection');
-const { TaskType, CpuProfileFileExt } = require('./constants');
-const { logInColor, generateId } = require('./helpers');
+import fs from 'node:fs/promises';
+import { Session } from 'node:inspector/promises';
+import { insertTask } from './collection.js';
+import { TaskType, CpuProfileFileExt } from './constants.js';
+import { logInColor, generateId } from './helpers.js';
 
 const DefaultDuration = 60 * 1000;
 
 
-class CpuProfiler {
+export class CpuProfiler {
   constructor() {
     this.profiling = false;
   }
@@ -91,6 +91,3 @@ class CpuProfiler {
     logInColor(message);
   }
 }
-
-
-module.exports = { CpuProfiler };

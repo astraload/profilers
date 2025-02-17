@@ -9,7 +9,7 @@ function createCollection() {
 }
 
 
-function getCollection() {
+export function getCollection() {
   if (!InstanceTasks) createCollection();
   return InstanceTasks;
 }
@@ -24,7 +24,7 @@ function logCollectionNotCreatedError(operation) {
 }
 
 
-async function insertTask({ instanceName, taskType, duration, samplingInterval }) {
+export async function insertTask({ instanceName, taskType, duration, samplingInterval }) {
   if (!InstanceTasks) return logCollectionNotCreatedError('insert');
   await InstanceTasks.insertAsync({
     instanceName,
@@ -35,14 +35,7 @@ async function insertTask({ instanceName, taskType, duration, samplingInterval }
 }
 
 
-async function removeTask(id) {
+export async function removeTask(id) {
   if (!InstanceTasks) return logCollectionNotCreatedError('remove');
   await InstanceTasks.removeAsync(id);
 }
-
-
-module.exports = {
-  getCollection,
-  insertTask,
-  removeTask,
-};

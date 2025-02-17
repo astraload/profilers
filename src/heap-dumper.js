@@ -1,11 +1,11 @@
-const fs = require('node:fs');
-const { Session } = require('node:inspector/promises');
-const { insertTask } = require('./collection');
-const { TaskType, HeapSnapshotFileExt } = require('./constants');
-const { logInColor, generateId } = require('./helpers');
+import fs from 'node:fs';
+import { Session } from 'node:inspector/promises';
+import { insertTask } from './collection.js';
+import { TaskType, HeapSnapshotFileExt } from './constants.js';
+import { logInColor, generateId } from './helpers.js';
 
 
-class HeapDumper {
+export class HeapDumper {
   constructor() {
     this.dumping = false;
   }
@@ -74,6 +74,3 @@ class HeapDumper {
     logInColor(message);
   }
 }
-
-
-module.exports = { HeapDumper };

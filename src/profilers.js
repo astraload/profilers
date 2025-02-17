@@ -1,15 +1,15 @@
-const EventEmitter = require('events');
-const { CpuProfiler } = require('./cpu-profiler');
-const { HeapDumper } = require('./heap-dumper');
-const { getCollection, removeTask } = require('./collection');
-const { TaskType, TaskEvent } = require('./constants');
-const { logInColor } = require('./helpers');
+import { EventEmitter } from 'events';
+import { CpuProfiler } from './cpu-profiler.js';
+import { HeapDumper } from './heap-dumper.js';
+import { getCollection, removeTask } from './collection.js';
+import { TaskType, TaskEvent } from './constants.js';
+import { logInColor } from './helpers.js';
 
 
 let profilersInstance = null;
 
 
-class Profilers extends EventEmitter {
+export class Profilers extends EventEmitter {
   constructor() {
     if (profilersInstance) return profilersInstance;
     super();
@@ -84,6 +84,3 @@ class Profilers extends EventEmitter {
     this.heap.setDumping(false);
   }
 }
-
-
-module.exports = { Profilers };

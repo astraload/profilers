@@ -1,15 +1,7 @@
-const { Profilers } = require('./src/profilers');
-const { logInColor } = require('./src/helpers');
-const {
+export { Profilers } from './src/profilers.js';
+export { logInColor } from './src/helpers.js';
+export {
   TaskEvent,
   CpuProfileFileExt,
   HeapSnapshotFileExt,
-} = require('./src/constants');
-
-module.exports = {
-  Profilers,
-  TaskEvent,
-  logInColor,
-  CpuProfileFileExt,
-  HeapSnapshotFileExt,
-};
+} from './src/constants.js';
