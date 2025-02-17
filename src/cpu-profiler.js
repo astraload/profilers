@@ -1,5 +1,5 @@
-const fs = require('fs');
-const v8Profiler = require('v8-profiler-next');
+const fs = require('node:fs/promises');
+const { Session } = require('node:inspector/promises');
 const { insertTask } = require('./collection');
 const { TaskType, CpuProfileFileExt } = require('./constants');
 const { logInColor, generateId } = require('./helpers');
@@ -33,51 +33,48 @@ class CpuProfiler {
   }
 
 
-  profile(duration, samplingInterval) {
-    return new Promise((resolve) => {
-      if (samplingInterval) {
-        v8Profiler.setSamplingInterval(samplingInterval);
-      }
+  async profile(duration, samplingInterval) {
+    const session = new Session();
+    session.connect();
+    await session.post('Profiler.enable');
 
-      const id = generateId();
-      v8Profiler.startProfiling(id);
-      this.logOperation(id, 'started');
+    if (samplingInterval) {
+      await session.post('Profiler.setSamplingInterval', {
+        interval: samplingInterval,
+      });
+    }
+
+    await session.post('Profiler.start');
+    const id = generateId();
+    this.logOperation(id, 'started');
+
+    return new Promise((resolve, reject) => {
       const delay = duration || DefaultDuration;
-
       setTimeout(async () => {
-        const profile = v8Profiler.stopProfiling(id);
-        this.logOperation(id, 'finished');
-        const { fileName, filePath } = await this.saveProfile(profile, id);
-        profile.delete();
-        resolve({ fileName, filePath });
+        try {
+          const { profile } = await session.post('Profiler.stop');
+          this.logOperation(id, 'finished');
+          const { fileName, filePath } = await this.saveProfile(profile, id);
+          session.disconnect();
+          resolve({ fileName, filePath });
+        } catch (error) {
+          reject(error);
+        }
       }, delay);
     });
   }
 
-
-  saveProfile(profile, id) {
-    return new Promise((resolve) => {
-      profile.export((error, result) => {
-        if (error) {
-          console.error(`Failed to save CPU profile (${id})`, error);
-          return resolve({});
-        }
-
-        const fileName = this.getFileNameById(id);
-        const filePath = this.getFilePathByName(fileName);
-
-        fs.writeFile(filePath, result, (error) => {
-          if (error) {
-            console.error(`Failed to save CPU profile (${id})`, error);
-            return resolve({});
-          }
-
-          resolve({ fileName, filePath });
-        });
-      });
-    });
+  async saveProfile(profile, id) {
+    try {
+      const fileName = this.getFileNameById(id);
+      const filePath = this.getFilePathByName(fileName);
+      await fs.writeFile(filePath, JSON.stringify(profile));
+      return { fileName, filePath };
+    } catch (error) {
+      console.error(`Failed to save CPU profile (${id})`, error);
+      return {};
+    }
   }
-
 
   getFileNameById(id) {
     return `${id}.${CpuProfileFileExt}`;
