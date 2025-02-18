@@ -1,11 +1,11 @@
-const fs = require('fs');
-const v8Profiler = require('v8-profiler-next');
-const { insertTask } = require('./collection');
-const { TaskType, HeapSnapshotFileExt } = require('./constants');
-const { logInColor, generateId } = require('./helpers');
+import fs from 'node:fs';
+import { Session } from 'node:inspector/promises';
+import { insertTask } from './collection.js';
+import { TaskType, HeapSnapshotFileExt } from './constants.js';
+import { logInColor, generateId } from './helpers.js';
 
 
-class HeapDumper {
+export class HeapDumper {
   constructor() {
     this.dumping = false;
   }
@@ -30,45 +30,34 @@ class HeapDumper {
 
 
   async takeSnapshot() {
-    const id = generateId();
-    let snapshot;
+    let fileDescriptor;
+    const session = new Session();
     try {
+      const id = generateId();
+      const fileName = this.getFileNameById(id);
+      const filePath = this.getFilePathByName(fileName);
+      fileDescriptor = fs.openSync(filePath, 'w');
+
+      session.connect();
+      await session.post('HeapProfiler.enable');
+
+      session.on('HeapProfiler.addHeapSnapshotChunk', (message) => {
+        fs.writeSync(fileDescriptor, message.params.chunk);
+      });
+
       this.logOperation(id, 'started');
-      snapshot = v8Profiler.takeSnapshot();
+      await session.post('HeapProfiler.takeHeapSnapshot', null);
       this.logOperation(id, 'finished');
-      return this.saveSnapshot(snapshot, id);
+
+      return { fileName, filePath };
     } catch (error) {
       console.error(`Failed to take heap snapshot (${id})`, error);
       return {};
     } finally {
-      if (snapshot) snapshot.delete();
+      session.disconnect();
+      if (fileDescriptor) fs.closeSync(fileDescriptor);
     }
   }
-
-
-  saveSnapshot(snapshot, id) {
-    return new Promise((resolve) => {
-      snapshot.export((error, result) => {
-        if (error) {
-          console.error(`Failed to save heap snapshot (${id})`, error);
-          return resolve({});
-        }
-
-        const fileName = this.getFileNameById(id);
-        const filePath = this.getFilePathByName(fileName);
-
-        fs.writeFile(filePath, result, (error) => {
-          if (error) {
-            console.error(`Failed to save heap snapshot (${id})`, error);
-            return resolve({});
-          }
-
-          resolve({ fileName, filePath });
-        });
-      });
-    });
-  }
-
 
   getFileNameById(id) {
     return `${id}.${HeapSnapshotFileExt}`;
@@ -85,6 +74,3 @@ class HeapDumper {
     logInColor(message);
   }
 }
-
-
-module.exports = { HeapDumper };
