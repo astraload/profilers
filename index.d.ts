@@ -5,14 +5,14 @@ export class CpuProfiler {
   setProfiling(value: boolean): void;
 
   profile(
-    duration: number,
-    samplingInterval: number
+    duration?: number,
+    samplingInterval?: number
   ): Promise<{ fileName: string; filePath: string }>;
 
   scheduleTask(
     instanceName: string,
-    duration: number,
-    samplingInterval: number
+    duration?: number,
+    samplingInterval?: number
   ): Promise<void>;
 }
 
